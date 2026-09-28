@@ -1,0 +1,38 @@
+@startuml
+autonumber
+actor "Reclutador" as R
+participant "InterfazUsuario" as UI
+participant "ControladorEvaluacion" as CE
+database "BaseDeDatos" as DB
+participant "ServicioCorreoAPI" as Mail
+
+R -> UI: Ingresa nota, comentarios y selecciona nuevo estado
+activate UI
+UI -> CE: registrarCalificacion(idPostulacion, nota, comentarios, nuevoEstado)
+activate CE
+
+CE -> DB: actualizarEvaluacion(idPostulacion, nota, comentarios)
+activate DB
+DB --> CE: OK
+deactivate DB
+
+CE -> DB: actualizarEstadoPostulacion(idPostulacion, nuevoEstado)
+activate DB
+DB --> CE: OK
+deactivate DB
+
+CE -> DB: obtenerEmailYAspirante(idPostulacion)
+activate DB
+DB --> CE: emailAspirante, nombre
+deactivate DB
+
+CE -> Mail: enviarNotificacion(emailAspirante, nuevoEstado)
+activate Mail
+Mail --> CE: Respuesta HTTP 200 OK
+deactivate Mail
+
+CE --> UI: Confirmación de actualización
+deactivate CE
+UI --> R: Mensaje "Calificación y estado actualizados correctamente"
+deactivate UI
+@enduml
